@@ -1,0 +1,225 @@
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+# import needed liberarirs
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings 
+warnings.filterwarnings("ignore")
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler,MinMaxScaler
+from sklearn.model_selection import train_test_split
+
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor,AdaBoostRegressor
+
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score,accuracy_score
+
+# read data
+df = pd.read_csv('/kaggle/input/housing-price-prediction/Housing.csv')
+df
+df.head()
+df.sample()
+df.sample(10)
+df.info()
+df.describe()
+df.nunique()
+# Missing Value
+df.isnull()
+df.isna().sum()
+df.duplicated().sum()
+df.shape
+# data visualization
+bedrooms_count = df['bedrooms'].value_counts()
+bedrooms_count
+plt.figure(figsize=(8,3))
+ax=sns.barplot(x=bedrooms_count.index, y=bedrooms_count.values,palette="rocket_r")
+ax.bar_label(ax.containers[0], fontsize=8);
+plt.title('count of bedrooms')
+plt.xlabel('bedrooms')
+plt.ylabel('count')
+plt.show()
+count_bathrooms = df['bathrooms'].value_counts()
+count_bathrooms
+ax = sns.barplot(x=count_bathrooms.index,y=count_bathrooms.values,palette="mako")
+ax.bar_label(ax.containers[0], fontsize=8);
+plt.title('count of bathrooms')
+plt.xlabel('bathrooms')
+plt.ylabel('count')
+plt.show()
+stories_count = df['stories'].value_counts()
+stories_count
+
+ax = sns.barplot(x=stories_count.index,y=stories_count.values,palette="magma")
+ax.bar_label(ax.containers[0], fontsize=8)
+plt.title('count of stories')
+plt.xlabel('stories')
+plt.ylabel('count')
+plt.show()
+count_mainroad=df['mainroad'].value_counts()
+count_mainroad
+explode = [0, 0.09]
+colors = sns.color_palette("crest")
+plt.pie(count_mainroad.values, 
+        labels=count_mainroad.index, 
+        autopct='%.0f%%',explode=explode, 
+        colors = colors) 
+plt.title("count of mainroad")
+plt.legend(loc = "best")
+
+plt.show()
+
+guestroom_count = df['guestroom'].value_counts()
+guestroom_count
+explode = [0, 0.09]
+colors = sns.color_palette("crest")
+plt.pie(guestroom_count.values, 
+        labels=guestroom_count.index, 
+        autopct='%.0f%%',explode=explode, 
+        colors = colors) 
+plt.title("count of guestroom")
+plt.legend(loc = "best")
+
+plt.show()
+
+furnishingstatus_count = df.furnishingstatus.value_counts()
+furnishingstatus_count
+ax = sns.barplot(x=furnishingstatus_count.index,
+                 y=furnishingstatus_count.values,
+                 palette="magma"
+                
+                )
+ax.bar_label(ax.containers[0], fontsize=8)
+plt.show()
+prefarea_count = df.prefarea.value_counts()
+prefarea_count
+explode = [0, 0.09]
+colors = sns.color_palette("magma")
+plt.pie(prefarea_count.values, 
+        labels=prefarea_count.index, 
+        autopct='%.0f%%',explode=explode, 
+        colors = colors) 
+plt.title("count of guestroom")
+plt.legend(loc = "best")
+
+plt.show()
+ax = sns.countplot(df, x="bedrooms", hue="parking",palette="magma")
+for i in range(len(df['parking'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+
+
+plt.show()
+ax = sns.countplot(df, x="bedrooms", hue="bathrooms",palette="mako")
+for i in range(len(df['bathrooms'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.show()
+ax = sns.countplot(df, x="bedrooms", hue="stories",palette="mako")
+for i in range(len(df['stories'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of stoies')
+plt.show()
+ax = sns.countplot(df, x="bedrooms", hue="furnishingstatus",palette="viridis")
+for i in range(len(df['furnishingstatus'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of furnishingstatus')
+plt.show()
+ax = sns.countplot(df, x="parking", hue="furnishingstatus",palette="rocket_r")
+for i in range(len(df['furnishingstatus'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of furnishingstatus')
+plt.show()
+ax = sns.countplot(df, x="stories", hue="furnishingstatus",palette="cubehelix")
+for i in range(len(df['furnishingstatus'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of furnishingstatus')
+plt.show()
+ax = sns.countplot(df, x="bathrooms", hue="prefarea",palette="crest")
+for i in range(len(df['prefarea'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of prefarea')
+plt.show()
+ax = sns.countplot(df, x="bedrooms", hue="prefarea",palette="cubehelix")
+for i in range(len(df['prefarea'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of prefarea')
+plt.show()
+ax = sns.countplot(df, x="stories", hue="prefarea",palette="rocket")
+for i in range(len(df['prefarea'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of prefarea')
+plt.show()
+ax = sns.countplot(df, x="parking", hue="prefarea",palette="flare")
+for i in range(len(df['prefarea'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of prefarea')
+plt.show()
+ax = sns.countplot(df, x="bathrooms", hue="hotwaterheating",palette="rocket")
+for i in range(len(df['hotwaterheating'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of hotwaterheating')
+plt.legend(loc = 'best')
+plt.show()
+ax = sns.countplot(df, x="parking", hue="hotwaterheating",palette="rocket")
+for i in range(len(df['hotwaterheating'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of hotwaterheating')
+plt.legend(loc = 'best')
+plt.show()
+ax = sns.countplot(df, x="stories", hue="hotwaterheating",palette="rocket")
+for i in range(len(df['hotwaterheating'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of hotwaterheating')
+plt.legend(loc = 'best')
+plt.show()
+ax = sns.countplot(df, x="mainroad", hue="hotwaterheating",palette="rocket")
+for i in range(len(df['hotwaterheating'].unique())):
+    ax.bar_label(ax.containers[i], fontsize=8)
+plt.ylabel('count of hotwaterheating')
+plt.legend(loc = 'best')
+plt.show()
+# data encoding
+encoder = LabelEncoder()
+encoding_col = ['furnishingstatus','prefarea','airconditioning','hotwaterheating','basement','guestroom','mainroad']
+for col in encoding_col:
+    df[col]=encoder.fit_transform(df[col])
+df
+plt.figure(figsize=(10, 10))
+sns.heatmap(df.corr(), annot=True, fmt=".2f", linewidths=0.5, cbar=True)
+plt.show()
+# feature and target
+x=df.drop(columns=['price'],axis = 1)
+y=df['price']
+# data splitting
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=50)
+# models
+
+**linear model**
+ln_model = LinearRegression()
+ln_model.fit(x_train, y_train)
+y_pred = ln_model.predict(x_test)
+ln_acc = r2_score(y_test, y_pred)
+ln_acc
+**AdaBoostRegressor**
+abr_model = AdaBoostRegressor()
+abr_model.fit(x_train, y_train)
+y_pred = abr_model.predict(x_test)
+abr_acc = r2_score(y_test, y_pred)
+abr_acc
